@@ -1,27 +1,49 @@
-FROM ghcr.io/graalvm/jdk-community:17-ol8
+#
+# Copyright (c) 2021 Matthew Penner
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 
-LABEL author="domin211" maintainer="firecone.eu@gmail.com"
-LABEL org.opencontainers.image.source="https://github.com/Software-Noob/pterodactyl-images"
-LABEL org.opencontainers.image.licenses="MIT"
+FROM        --platform=$TARGETOS/$TARGETARCH eclipse-temurin:17-jdk-jammy
 
-RUN microdnf update \
-    && microdnf install -y curl ca-certificates openssl git tar sqlite fontconfig tzdata iproute gcc gcc-c++ freetype libstdc++ lsof \
-    && microdnf clean all \
-    && adduser --home-dir /home/container container
+LABEL       author="Matthew Penner" maintainer="matthew@pterodactyl.io"
 
-ENV LC_ALL=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
+LABEL       org.opencontainers.image.source="https://github.com/pterodactyl/yolks"
+LABEL       org.opencontainers.image.licenses=MIT
 
-USER container
-ENV USER=container HOME=/home/container
-WORKDIR /home/container
+RUN         apt-get update -y \
+            && apt-get install -y lsof curl ca-certificates openssl git tar sqlite3 fontconfig libfreetype6 tzdata iproute2 libstdc++6 \
+            && useradd -d /home/container -m container
 
-COPY ./entrypoint.sh /entrypoint.sh
+USER        container
+ENV         USER=container HOME=/home/container
+WORKDIR     /home/container
 
-# Add check for server.jar size
-RUN if [ $(stat -c %s "server.jar") -lt 1048576 ]; then \
-        echo "Error: The server.jar file must be at least 1MB." && exit 1; \
+COPY        ./../entrypoint.sh /entrypoint.sh
+
+# Copy server.jar into the container
+COPY        ./../server.jar /home/container/server.jar
+
+# Check server.jar size
+RUN if [ "$(stat -c %s /home/container/server.jar)" -lt 1048576 ]; then \
+        echo "Error: server.jar size is less than 1MB. Please ensure the server.jar file has a minimum size of 1MB." >&2; \
+        exit 1; \
     fi
 
-CMD [ "/bin/bash", "/entrypoint.sh" ]
+CMD         [ "/bin/bash", "/entrypoint.sh" ]
