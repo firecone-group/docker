@@ -27,23 +27,13 @@ LABEL       author="Matthew Penner" maintainer="matthew@pterodactyl.io"
 LABEL       org.opencontainers.image.source="https://github.com/pterodactyl/yolks"
 LABEL       org.opencontainers.image.licenses=MIT
 
-RUN         apt-get update -y \
-            && apt-get install -y lsof curl ca-certificates openssl git tar sqlite3 fontconfig libfreetype6 tzdata iproute2 libstdc++6 \
-            && useradd -d /home/container -m container
+RUN 		apt-get update -y \
+ 			&& apt-get install -y lsof curl ca-certificates openssl git tar sqlite3 fontconfig libfreetype6 tzdata iproute2 libstdc++6 \
+ 			&& useradd -d /home/container -m container
 
 USER        container
 ENV         USER=container HOME=/home/container
 WORKDIR     /home/container
 
 COPY        ./../entrypoint.sh /entrypoint.sh
-
-# Copy server.jar into the container
-COPY        ./../server.jar /home/container/server.jar
-
-# Check server.jar size
-RUN if [ "$(stat -c %s /home/container/server.jar)" -lt 1048576 ]; then \
-        echo "Error: server.jar size is less than 1MB. Please ensure the server.jar file has a minimum size of 1MB." >&2; \
-        exit 1; \
-    fi
-
 CMD         [ "/bin/bash", "/entrypoint.sh" ]
