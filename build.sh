@@ -1,4 +1,4 @@
-repository=$1
+repository=firecone-group/docker
 
 docker buildx build --push -t ghcr.io/$repository:java_8 -f ./java/8/Dockerfile ./java/ || exit
 docker buildx build --push -t ghcr.io/$repository:java_11 -f ./java/11/Dockerfile ./java/ || exit
