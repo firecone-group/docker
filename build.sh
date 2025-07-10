@@ -1,7 +1,7 @@
 repository=$1
 
-cd ./java/8/ && docker buildx build --push -t ghcr.io/$repository:java_8 . && cd - || exit
-cd ./java/11/ && docker buildx build --push -t ghcr.io/$repository:java_11 . && cd - || exit
-cd ./java/16/ && docker buildx build --push -t ghcr.io/$repository:java_16 . && cd - || exit
-cd ./java/17/ && docker buildx build --push -t ghcr.io/$repository:java_17 . && cd - || exit
-cd ./java/21/ && docker buildx build --push -t ghcr.io/$repository:java_21 . && cd - || exit
+docker buildx build --push -t ghcr.io/$repository:java_8 -f ./java/8/Dockerfile ./java/ || exit
+docker buildx build --push -t ghcr.io/$repository:java_11 -f ./java/11/Dockerfile ./java/ || exit
+docker buildx build --push -t ghcr.io/$repository:java_16 -f ./java/16/Dockerfile ./java/ || exit
+docker buildx build --push -t ghcr.io/$repository:java_17 -f ./java/17/Dockerfile ./java/ || exit
+docker buildx build --push -t ghcr.io/$repository:java_21 -f ./java/21/Dockerfile ./java/ || exit
