@@ -22,7 +22,7 @@ jobs:
               run: |
                 if ! grep -q "ghcr.io" ~/.docker/config.json 2>/dev/null; then
                   echo "GHCR not in config — logging in."
-                  echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u USERNAME --password-stdin
+                  echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u USERNAME --password-stdin
                 else
                   echo "GHCR already present in Docker config."
                 fi
