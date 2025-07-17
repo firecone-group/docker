@@ -20,11 +20,11 @@ jobs:
             
             - name: Login to GHCR if needed
               run: |
-                if ! docker info | grep -q 'ghcr.io'; then
-                  echo "Not logged in to ghcr.io — logging in..."
-                  echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u USERNAME --password-stdin
+                if ! grep -q "ghcr.io" ~/.docker/config.json 2>/dev/null; then
+                  echo "GHCR not in config — logging in."
+                  echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u USERNAME --password-stdin
                 else
-                  echo "Already logged in to ghcr.io, skipping login."
+                  echo "GHCR already present in Docker config."
                 fi
 
             - name: Run build script
